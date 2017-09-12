@@ -1,0 +1,186 @@
+<link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html"> 
+<link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../bower_components/paper-styles/paper-styles.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<dom-module id="user-creation-element">
+<template>
+<style>
+:host {
+display: block;
+}
+.row {
+    width:98%;
+}
+.row{
+    padding:10px; 
+}
+.Container {
+    width:100%;
+    padding: 10px;
+    background: lightgrey;
+    border-radius:4px;
+}
+paper-button {
+    font-family: 'Roboto', 'Noto', sans-serif;
+    font-weight: normal;
+    font-size: 14px;
+    margin:5px;
+}
+paper-button.indigo {
+    background-color: var(--paper-indigo-500);
+    color: white;
+    --paper-button-raised-keyboard-focus: {
+        background-color: var(--paper-pink-a200) !important;
+        color: white !important;
+    };
+}
+paper-button.indigo:hover {
+    background-color: var(--paper-indigo-400);
+}
+paper-checkbox {
+    font-family: 'Roboto', sans-serif;
+    margin: 24px;
+  }
+    
+  paper-checkbox:first-child {
+    --primary-color: #ff5722;
+  }
+  
+  paper-checkbox.styled {
+    align-self: center;
+    /*border: 1px solid var(--paper-green-200);*/
+    --paper-checkbox-checked-color: var(--paper-green-500);
+    --paper-checkbox-checked-ink-color: var(--paper-green-500);
+    --paper-checkbox-unchecked-color: var(--paper-green-900);
+    --paper-checkbox-unchecked-ink-color: var(--paper-green-900);
+    --paper-checkbox-label-color: var(--paper-green-500);
+    --paper-checkbox-label-spacing: 0;
+    --paper-checkbox-margin: 3px 16px 0px 0;
+    --paper-checkbox-vertical-align: top;
+  }
+
+  paper-checkbox .subtitle {
+    display: block;
+    font-size: 1em;
+    margin-top: 2px;
+    max-width: 150px;
+  }
+    .width45{
+        width:45%;
+        float:left;
+    }
+</style>    
+ <h1>Create User</h1>
+    <div class="Container">
+        <div class="row">	
+            <label name="labelfield">First Name:</label>
+            <input name="inputUserName" value="{{username::input}}"> <!--two-way binding incase of native elements or non-polymer elements-->
+            <p>You have entered first name as <span>{{username}}</span> </p>
+             
+        </div>
+         <div class="row">	
+            <label name="labelfield">Last Name:</label>
+            <input name="inputLastName" value="{{lastname::input}}"> <!--two-way binding incase of native elements or non-polymer elements-->
+            <p>You have entered last name as <span>{{lastname}}</span> </p>           
+        </div>
+        <div> Computed Full name is {{computedFullName(username,lastname)}}</div>
+        <div class="row">	
+            <label name="labelfield">Password:</label>
+            <input type="password" name="inputPassword" value="{{password::input}}"> <!--two-way binding incase of native elements or non-polymer elements-->
+            <p>You have entered password as <span>{{password}}</span> </p>
+        </div>
+         <div class="row">	
+            <label name="labelextra">Extra:</label>
+            <input name="inputExtra" value="{{extra::input}}"> <!--two-way binding incase of native elements or non-polymer elements-->
+        </div>
+         <div class="row">	
+            <div class="width45">
+            <paper-button raised class="indigo" on-click="createUser">Create User</paper-button>  
+            <!--<h3>{{response.access_token}}</h3>
+            <h2>[[message]]</h2> -->
+             <iron-ajax method="POST" content-type="application/json" url="http://localhost:4001/users" handle-as="text" body={{data}} last-response="{{response}}" on-response="handleResponse" on-error="handleError" id="dataAjax">
+            </iron-ajax>
+             
+            </div>
+            <div>
+             <template is="dom-bind" id="quotesId">
+                <style>
+                    pre{
+                         white-space: pre-wrap;
+                    }
+                    .hidden {
+                        display:none;
+                    }
+                </style>
+                <paper-button class="hidden" raised on-tap="onClick">Fetch Quotes</paper-button>
+                <iron-ajax method="GET" content-type="text/html" url="http://localhost:4001/api/random-quote" handle-as="text" last-response="{{responseNew}}" id="dataAjaxNew">
+                </iron-ajax>
+                 <h3><pre>[[json(responseNew)]]</pre></h3>         
+            </template>
+            </div>
+             <div class="messages">
+                <h3>[[message]]</h3>             
+             </div>
+        </div>
+        
+    </div>
+
+</template>
+<script src="scripts/testScript.js"></script>
+<script>
+        Polymer({
+            is: 'user-creation-element',
+             properties: {
+                response: {
+                  type: String
+                },
+                responseNew: {
+                  type: String
+                },
+                token: {
+                  type: String
+                },
+                message: {
+                  type: String
+                },
+                messageNew: {
+                  type: String
+                },
+                data:{
+                    type:Object,
+                   //value: {"username":"SPV09192","password":"Surej@2000","extra":"Myself"}  -- Working syntax
+                   // value: {"username":"{{username}}","password":"{{password}}","extra":"{{extra}}"}  -- Working syntax witj data binding
+                    computed: 'ajaxBody(username, password,extra)'  //working syntax with computed values
+                }
+            },
+            computedFullName : function(username,lastname){
+                return username + ' '+lastname;
+            },
+            ajaxBody: function(username, password, extra) {
+                console.log('Inside ajax body');
+                console.log('inputField value is:',username);
+                return JSON.stringify({username: username, password:password,extra:extra});
+            },  
+             createUser: function (e) {
+                console.log('You pressed button');
+                this.$.dataAjax.generateRequest();
+            },
+             handleResponse: function(response){
+                 console.log('Inside handle response');
+                 console.log(this.response);
+                 this.token = this.response.access_token;
+                 //Console.log('Token is:',this.token);
+                 this.message = 'User has been created successfully';  
+                 //Polymer.globalsManager.set('userCreated', 'true');
+                 //Polymer.globalsManager.set('dummyTest', 'Y');
+                 //console.log(Polymer.globalsManager.getAll());
+            },
+            handleError: function(event){
+                console.log("User creation failed");
+                this.message = event.detail.request.xhr.response;
+            }
+            
+        });
+</script>
+</dom-module>

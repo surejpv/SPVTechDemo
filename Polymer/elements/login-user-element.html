@@ -1,0 +1,176 @@
+<link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html"> 
+<link rel="import" href="../bower_components/paper-styles/paper-styles.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<dom-module id="login-user-element">
+<template>
+       <style>
+        :host {
+        display: block;
+        }
+        .row {
+            /*width:98%;*/
+        }
+        .row{
+            padding:5px; 
+        }
+        .Container {
+            width:100%;
+            padding: 10px 10px 45px 10px;
+            background: lightgrey;
+            border-radius:4px;
+        }
+        paper-button {
+            font-family: 'Roboto', 'Noto', sans-serif;
+            font-weight: normal;
+            font-size: 14px;
+            margin:5px;
+        }
+        paper-button.indigo {
+            background-color: var(--paper-indigo-500);
+            color: white;
+            --paper-button-raised-keyboard-focus: {
+                background-color: var(--paper-pink-a200) !important;
+                color: white !important;
+            };
+        }
+        paper-button.indigo:hover {
+            background-color: var(--paper-indigo-400);
+        }
+        paper-checkbox {
+            font-family: 'Roboto', sans-serif;
+            margin: 5px;
+          }
+
+          paper-checkbox:first-child {
+            --primary-color: #ff5722;
+          }
+
+          paper-checkbox.styled {
+            align-self: center;
+            /*border: 1px solid var(--paper-green-200);*/
+            --paper-checkbox-checked-color: var(--paper-green-500);
+            --paper-checkbox-checked-ink-color: var(--paper-green-500);
+            --paper-checkbox-unchecked-color: var(--paper-green-900);
+            --paper-checkbox-unchecked-ink-color: var(--paper-green-900);
+            --paper-checkbox-label-color: var(--paper-green-500);
+            --paper-checkbox-label-spacing: 0;
+            --paper-checkbox-margin: 3px 16px 0px 0;
+            --paper-checkbox-vertical-align: top;
+          }
+
+          paper-checkbox .subtitle {
+            display: block;
+            font-size: 1em;
+            margin-top: 2px;
+            max-width: 150px;
+          }
+            .width45{
+                width:45%;
+                float: right;
+                margin-top: -41px;
+            }
+            .successImage {
+                width:400px;
+                height:400px;
+                background-color: lightgray; 
+            }
+           .boldHighlightText{
+               font-weight:bold;
+               font-size:20px;
+           }
+    </style>        
+    
+            <h1>Login</h1>
+            <div class="Container">
+                <div class="row">	
+                    <label name="labelfield">First Name:</label>
+                    <input name="inputUserName" value="{{username::input}}">
+                    <p>You have entered first name as <span>{{username}}</span> </p>
+
+                </div>
+                <div class="row">	
+                    <label name="labelfield">Password:</label>
+                    <input type="password" name="inputPassword" value="{{password::input}}"> <!--two-way binding incase of native elements or non-polymer elements-->
+                    <p>You have entered password as <span>{{password}}</span> </p>
+                </div>
+                <paper-checkbox class="styled">
+                    <span class="subtitle">
+                        Remember User id?
+                    </span>
+                </paper-checkbox>
+                
+                <div class="row">	
+                    <div class="width45">
+                    <paper-button raised class="indigo" on-click="loginUser">Login</paper-button>
+                         <iron-ajax method="POST" content-type="application/json" url="http://localhost:4001/sessions/create" handle-as="text" body={{data}} last-response="{{response}}" on-response="handleResponse" on-error="handleError" id="dataAjax">
+                        </iron-ajax>
+                    </div>
+                     <div class="messages">
+                        <h3>[[message]]</h3>             
+                     </div>
+                </div>                
+                
+            </div>
+            <paper-dialog id="modal" modal>
+                <p> Welcome <span class="boldHighlightText">{{username}}</span>!! You have been successfully logged in.</p>
+                <div id="imageContainer">
+                    <iron-image class="successImage" sizing="cover" preload fade src="./images/loggedin.png"></iron-image>
+                </div>
+                <div class="buttons">
+                    <paper-button dialog-confirm autofocus>Tap me to close</paper-button>
+                </div>
+            </paper-dialog>
+             <paper-dialog id="errorModal" modal>
+                        <div id="imageContainer">
+                            <iron-image class="successImage" sizing="cover" preload fade src="./images/wrongPwd.jpg"></iron-image>
+                        </div>
+                        <div class="buttons">
+                            <paper-button dialog-confirm autofocus>Tap me to close</paper-button>
+                        </div>
+            </paper-dialog>
+</template>
+    <script>
+        Polymer({
+            is: 'login-user-element',
+             properties: {
+                response: {
+                  type: String
+                },
+                message: {
+                  type: String
+                },
+                data:{
+                    type:Object,
+                   //value: {"username":"SPV09192","password":"Surej@2000","extra":"Myself"}  -- Working syntax
+                   // value: {"username":"{{username}}","password":"{{password}}","extra":"{{extra}}"}  -- Working syntax witj data binding
+                    computed: 'ajaxBody(username, password)'  //working syntax with computed values
+                }
+            },
+            ajaxBody: function(username, password) {
+                console.log('Inside ajax body');
+                console.log('inputField value is:',username);
+                return JSON.stringify({username: username, password:password});
+            },  
+            loginUser: function (e) {
+                console.log('You clicked on LOGIN');
+                this.$.dataAjax.generateRequest();
+            },
+             handleResponse: function(response){
+                 console.log('Inside handle response');
+                 console.log(this.response);
+                 this.token = this.response.access_token;
+                 //Console.log('Token is:',this.token);
+                 this.message = 'User has been logged in successfully';
+                 modal.open();
+            },
+            handleError: function(event){
+                console.log("User Login has failed. Kindly enter valid a Username and Password");
+                this.message = event.detail.request.xhr.response;
+                errorModal.open();
+            }           
+        });
+</script>
+</dom-module>
