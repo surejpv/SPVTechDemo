@@ -1,0 +1,25 @@
+.row {
+    width:98%;
+}
+.row{
+    padding:10px; 
+}
+.Container {
+    width:100%;
+    padding: 10px;
+    background: lightgrey;
+    border-radius:4px;
+}
+.width45{
+    width:45%;
+    float:left;
+}
+.successImage {
+	width:400px;
+	height:400px;
+	background-color: lightgray; 
+}
+.boldHighlightText{
+   font-weight:bold;
+   font-size:20px;
+}
