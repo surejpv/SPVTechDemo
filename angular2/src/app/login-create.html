@@ -1,0 +1,53 @@
+<div class="container-fluid containerBackGround col-lg-4 col-md-4 col-sm-10">
+    <form #inputForm="ngForm" (ngSubmit)="onSubmit(inputForm.value)">
+        <h1>Login User</h1>
+        <div class="form-group">
+                <label>User Name:</label>
+                <input type="text" #userNameRef="ngModel" minlength="3" required name="userName" [(ngModel)]="userName">
+                <!--<p>{{userNameRef.className}}</p>
+                <p>Hello {{userName}}!!</p> 
+                <div [hidden]="userNameRef.valid || userNameRef.pristine" class="alert alert-danger">
+                    Please enter a user name!!
+                </div>-->
+                <div *ngIf="userNameRef.errors && (userNameRef.dirty || userNameRef.touched)" class="alert alert-danger">
+                    <div [hidden]="!userNameRef.errors.required">
+                            Please enter a user name!!
+                    </div>
+                    <div [hidden]="!userNameRef.errors.minlength">
+                            Please enter min 3 characters!!
+                    </div>
+                </div>
+        </div>
+        <div class="form-group">
+                <label>Password:</label>
+                <input type="password" required name="password"  [(ngModel)]="password">
+        </div>
+        <div class="form-group">
+                <input type="checkbox" name="rememberUser" ngModel>               
+                <label>Remember UserId?</label>
+        </div>   
+        <div class="row">
+                <modal #messageModal>
+                    <modal-header [hidden]="!displaySuccessModal">
+                        <h3> Welcome {{userName}}.!! You have been successfully logged in.</h3>
+                    </modal-header>
+                    <modal-header [hidden]="displaySuccessModal">
+                        <h3> Sorry {{userName}}.!! Wrong Credentials entered.</h3>
+                    </modal-header>
+                    <modal-content [hidden]="!displaySuccessModal"> 
+                        <img ngClass="successImage" [src]="fullPath"/>
+                    </modal-content>
+                    <modal-content [hidden]="displaySuccessModal">
+                        <img ngClass="errorImage" [src]="fullErrorPath"/>
+                    </modal-content>
+                    <modal-footer>
+                        <button class="btn btn-primary" (click)="messageModal.close()">close</button>
+                    </modal-footer>
+                </modal>
+        </div>             
+       <!-- <h3>{{errorMsg}}</h3> -->
+        <button [disabled]="inputForm.form.invalid"  class="btn btn-primary" (click)="messageModal.open()">Login</button>
+    </form>
+</div>
+
+
