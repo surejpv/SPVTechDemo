@@ -104,20 +104,6 @@ paper-checkbox {
              
             </div>
             <div>
-             <template is="dom-bind" id="quotesId">
-                <style>
-                    pre{
-                         white-space: pre-wrap;
-                    }
-                    .hidden {
-                        display:none;
-                    }
-                </style>
-                <paper-button class="hidden" raised on-tap="onClick">Fetch Quotes</paper-button>
-                <iron-ajax method="GET" content-type="text/html" url="http://localhost:4001/api/random-quote" handle-as="text" last-response="{{responseNew}}" id="dataAjaxNew">
-                </iron-ajax>
-                 <h3><pre>[[json(responseNew)]]</pre></h3>         
-            </template>
             </div>
              <div class="messages">
                 <h3>[[message]]</h3>             
@@ -172,9 +158,6 @@ paper-checkbox {
                  this.token = this.response.access_token;
                  //Console.log('Token is:',this.token);
                  this.message = 'User has been created successfully';  
-                 //Polymer.globalsManager.set('userCreated', 'true');
-                 //Polymer.globalsManager.set('dummyTest', 'Y');
-                 //console.log(Polymer.globalsManager.getAll());
             },
             handleError: function(event){
                 console.log("User creation failed");
